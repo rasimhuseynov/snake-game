@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rasim Huseynov Portfolio & Mini-Game</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #050b14;
+            color: #00ff66;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            max-width: 1000px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .profile-card, .game-card {
+            background-color: #0a1424;
+            border: 2px solid #00ff66;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.2);
+            flex: 1;
+            min-width: 320px;
+        }
+        h1 {
+            color: #38bdf8;
+            font-size: 24px;
+            border-bottom: 1px solid #00ff66;
+            padding-bottom: 10px;
+        }
+        p {
+            color: #cbd5e1;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+        .stats {
+            color: #38bdf8;
+            font-weight: bold;
+        }
+        #game-board {
+            width: 300px;
+            height: 300px;
+            background-color: #020617;
+            border: 2px solid #38bdf8;
+            margin: 0 auto;
+            position: relative;
+        }
+        .snake {
+            background-color: #00ff66;
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            box-shadow: 0 0 5px #00ff66;
+        }
+        .food {
+            background-color: #ff0055;
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            box-shadow: 0 0 5px #ff0055;
+        }
+        .btn {
+            display: inline-block;
+            margin-top: 15px;
+            background-color: transparent;
+            color: #00ff66;
+            border: 1px solid #00ff66;
+            padding: 8px 16px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #00ff66;
+            color: #050b14;
+            box-shadow: 0 0 10px #00ff66;
+        }
+        #score-display {
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <h2 style="color: #38bdf8; text-shadow: 0 0 10px #38bdf8;">[ SYSTEM STATUS: ACTIVE ]</h2>
+
+    <div class="container">
+        <div class="profile-card">
+            <h1>>_ ABOUT_ME</h1>
+            <p><span class="stats">NAME:</span> Rasim Hüseynov</p>
+            <p><span class="stats">LOCATION:</span> Masazir, Azerbaijan</p>
+            <p><span class="stats">TARGET_01:</span> Computer Science @ BEU</p>
+            <p><span class="stats">TARGET_02:</span> Erasmus @ Estonia (Tartu/TalTech)</p>
+            <p>
+                Welcome to my terminal! I am an aspiring software engineer preparing for university exams. 
+                I built this interactive dashboard using HTML, CSS, and JavaScript.
+            </p>
+            <a href="https://github.com" target="_blank" class="btn">ACCESS GITHUB</a>
+        </div>
+
+        <div class="game-card">
+            <h1>>_ ARCADE_ZONE</h1>
+            <div id="score-display">SCORE: <span id="score" style="color: #00ff66;">0</span></div>
+            <div id="game-board"></div>
+            <div style="text-align: center;">
+                <button class="btn" onclick="startGame()">START GAME</button>
+            </div>
+            <p style="font-size: 11px; text-align: center; color: #94a3b8; margin-top: 10px;">
+                Use Up, Down, Left, Right arrow keys to control the snake.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const board = document.getElementById('game-board');
+        const scoreDisplay = document.getElementById('score');
+        const boardSize = 300;
+        const cellSize = 15;
+        let snake = [{x: 60, y: 60}];
+        let food = {x: 120, y: 120};
+        let dx = cellSize;
+        let dy = 0;
+        let score = 0;
+        let gameInterval;
+
+        function startGame() {
+            clearInterval(gameInterval);
+            snake = [{x: 60, y: 60}];
+            dx = cellSize;
+            dy = 0;
+            score = 0;
+            scoreDisplay.innerText = score;
+            createFood();
+            gameInterval = setInterval(updateGame, 150);
+        }
+
+        function createFood() {
+            food.x = Math.floor(Math.random() * (boardSize / cellSize)) * cellSize;
+            food.y = Math.floor(Math.random() * (boardSize / cellSize)) * cellSize;
+        }
+
+        function draw() {
+            board.innerHTML = '';
+            snake.forEach(part => {
+                const snakeElement = document.createElement('div');
+                snakeElement.style.left = `${part.x}px`;
+                snakeElement.style.top = `${part.y}px`;
+                snakeElement.classList.add('snake');
+                board.appendChild(snakeElement);
+            });
+
+            const foodElement = document.createElement('div');
+            foodElement.style.left = `${food.x}px`;
+            foodElement.style.top = `${food.y}px`;
+            foodElement.classList.add('food');
+            board.appendChild(foodElement);
+        }
+
+        function updateGame() {
+            const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+
+            if (head.x < 0 || head.x >= boardSize || head.y < 0 || head.y >= boardSize || snake.some(part => part.x === head.x && part.y === head.y)) {
+                clearInterval(gameInterval);
+                alert('GAME OVER! Your Score: ' + score);
+                return;
+            }
+
+            snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                score += 10;
+                scoreDisplay.innerText = score;
+                createFood();
+            } else {
+                snake.pop();
+            }
+            draw();
+        }
+
+        window.addEventListener('keydown', e => {
+            if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.key) > -1) {
+                e.preventDefault();
+            }
+            if (e.key === 'ArrowUp' && dy === 0) { dx = 0; dy = -cellSize; }
+            if (e.key === 'ArrowDown' && dy === 0) { dx = 0; dy = cellSize; }
+            if (e.key === 'ArrowLeft' && dx === 0) { dx = -cellSize; dy = 0; }
+            if (e.key === 'ArrowRight' && dx === 0) { dx = cellSize; dy = 0; }
+        });
+    </script>
+</body>
+</html>
